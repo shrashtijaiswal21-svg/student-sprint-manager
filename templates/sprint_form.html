@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit Sprint' if sprint else 'New Sprint' }}{% endblock %}
+
+{% block content %}
+<h3>{{ 'Edit Sprint' if sprint else 'New Sprint' }}</h3>
+
+<form method="POST" class="mt-3" style="max-width: 650px;">
+    {% if sprint %}
+        <div class="mb-3">
+            <label class="form-label">Project</label>
+            <input type="text" class="form-control" value="{{ sprint.project_name }}" disabled>
+        </div>
+    {% else %}
+        <div class="mb-3">
+            <label class="form-label">Project</label>
+            <select name="project_id" class="form-select" required>
+                {% for p in projects %}
+                    <option value="{{ p.id }}">{{ p.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+
+    <div class="mb-3">
+        <label class="form-label">Sprint Name</label>
+        <input type="text" name="name" class="form-control" required
+               placeholder="e.g. Sprint 1"
+               value="{{ sprint.name if sprint else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Sprint Goal</label>
+        <input type="text" name="goal" class="form-control" required
+               placeholder="e.g. Develop basic application"
+               value="{{ sprint.goal if sprint and sprint.goal else '' }}">
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Start Date</label>
+            <input type="date" name="start_date" class="form-control" required
+                   value="{{ sprint.start_date if sprint else '' }}">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">End Date</label>
+            <input type="date" name="end_date" class="form-control" required
+                   value="{{ sprint.end_date if sprint else '' }}">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select">
+            {% for s in statuses %}
+                <option value="{{ s }}" {% if sprint and sprint.status == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save Sprint</button>
+    <a href="{{ url_for('sprints') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

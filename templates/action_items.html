@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Weekly Action Items{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">Weekly Action Items</h3>
+        <small class="text-muted">Grouped by week</small>
+    </div>
+    <a href="{{ url_for('add_action_item') }}" class="btn btn-primary">+ New Action Item</a>
+</div>
+
+{% if weeks %}
+    {% for week_number, items in weeks.items() %}
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between">
+            <strong>Week {{ week_number }}</strong>
+            <span class="badge text-bg-success">
+                {{ items|selectattr('status', 'equalto', 'Done')|list|length }} of {{ items|length }} done
+            </span>
+        </div>
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Project</th>
+                    <th>Assigned To</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.project_name }}</td>
+                    <td>{{ item.assignee_name or 'Unassigned' }}</td>
+                    <td>
+                        {% if item.status == 'Done' %}
+                            <span class="badge text-bg-success">Done</span>
+                        {% elif item.status == 'In Progress' %}
+                            <span class="badge text-bg-primary">In Progress</span>
+                        {% else %}
+                            <span class="badge text-bg-secondary">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('edit_action_item', item_id=item.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ url_for('delete_action_item', item_id=item.id) }}" method="POST" class="d-inline"
+                              onsubmit="return confirm('Delete this action item?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="alert alert-secondary">No action items yet. Click "+ New Action Item" to add one.</div>
+{% endif %}
+{% endblock %}

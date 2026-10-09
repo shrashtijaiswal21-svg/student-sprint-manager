@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}User Stories{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">User Stories</h3>
+        <small class="text-muted">Product Backlog (sorted by priority)</small>
+    </div>
+    <a href="{{ url_for('add_story') }}" class="btn btn-primary">+ New Story</a>
+</div>
+
+{% if stories %}
+<table class="table table-bordered table-hover bg-white">
+    <thead class="table-dark">
+        <tr>
+            <th>Story ID</th>
+            <th>Title</th>
+            <th>Project</th>
+            <th>Priority</th>
+            <th>Story Points</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for story in stories %}
+        <tr>
+            <td>US-{{ story.id }}</td>
+            <td>
+                <strong>{{ story.title }}</strong><br>
+                <small class="text-muted">{{ story.description or '' }}</small>
+            </td>
+            <td>{{ story.project_name }}</td>
+            <td>
+                {% if story.priority == 'High' %}
+                    <span class="badge text-bg-danger">High</span>
+                {% elif story.priority == 'Medium' %}
+                    <span class="badge text-bg-warning">Medium</span>
+                {% else %}
+                    <span class="badge text-bg-secondary">Low</span>
+                {% endif %}
+            </td>
+            <td>{{ story.story_points }}</td>
+            <td>
+                <a href="{{ url_for('edit_story', story_id=story.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <form action="{{ url_for('delete_story', story_id=story.id) }}" method="POST" class="d-inline"
+                      onsubmit="return confirm('Delete this story and its tasks?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-secondary">No user stories yet. Click "+ New Story" to add one.</div>
+{% endif %}
+{% endblock %}

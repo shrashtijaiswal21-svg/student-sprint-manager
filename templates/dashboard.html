@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+{% set total_tasks = pending_tasks + completed_tasks %}
+{% set percent = (completed_tasks * 100 // total_tasks) if total_tasks else 0 %}
+
+<div class="mb-4">
+    <h3 class="mb-1">Welcome, {{ session['full_name'] }} 👋</h3>
+    <div class="text-muted">Here is the overview of your Agile project.</div>
+</div>
+{% set urgent = deadlines|selectattr('color', 'in', ['danger', 'warning'])|list %}
+{% if urgent %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>{{ urgent|length }} deadline(s) need attention.</strong>
+    See "Upcoming Deadlines" below.
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="stat-card stat-blue">
+            <i class="bi bi-folder2-open stat-icon"></i>
+            <h6>Total Projects</h6>
+            <div class="stat-value">{{ total_projects }}</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="stat-card stat-teal">
+            <i class="bi bi-lightning-charge-fill stat-icon"></i>
+            <h6>Active Sprint</h6>
+            <div class="stat-value" style="font-size: 1.6rem;">{{ active_sprint }}</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="stat-card stat-orange">
+            <i class="bi bi-hourglass-split stat-icon"></i>
+            <h6>Pending Tasks</h6>
+            <div class="stat-value">{{ pending_tasks }}</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="stat-card stat-green">
+            <i class="bi bi-check-circle-fill stat-icon"></i>
+            <h6>Completed Tasks</h6>
+            <div class="stat-value">{{ completed_tasks }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+            <strong>Overall Project Progress</strong>
+            <span>{{ completed_tasks }} of {{ total_tasks }} tasks done ({{ percent }}%)</span>
+        </div>
+        <div class="progress" style="height: 18px;">
+            <div class="progress-bar bg-success" style="width: {{ percent }}%;">{{ percent }}%</div>
+        </div>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="mb-3"><i class="bi bi-alarm me-1"></i>Upcoming Deadlines</h6>
+        {% if deadlines %}
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>End Date</th>
+                        <th>Pending Tasks</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in deadlines %}
+                    <tr>
+                        <td>{{ d.kind }}</td>
+                        <td>{{ d.name }}</td>
+                        <td>{{ d.end_date }}</td>
+                        <td>{% if d.pending is not none %}{{ d.pending }}{% else %}-{% endif %}</td>
+                        <td><span class="badge text-bg-{{ d.color }}">{{ d.label }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-muted">No upcoming deadlines.</div>
+        {% endif %}
+    </div>
+</div>
+<h5 class="mb-3">Agile Workflow</h5>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md">
+        <a class="workflow-step" href="{{ url_for('stories') }}">
+            <span class="step-no">1</span>
+            <i class="bi bi-journal-text"></i>
+            <div class="step-title">Product Backlog</div>
+            <div class="step-sub">Write user stories</div>
+        </a>
+    </div>
+    <div class="col-6 col-md">
+        <a class="workflow-step" href="{{ url_for('sprints') }}">
+            <span class="step-no">2</span>
+            <i class="bi bi-calendar-event"></i>
+            <div class="step-title">Sprint Planning</div>
+            <div class="step-sub">Pick stories for the sprint</div>
+        </a>
+    </div>
+    <div class="col-6 col-md">
+        <a class="workflow-step" href="{{ url_for('tasks') }}">
+            <span class="step-no">3</span>
+            <i class="bi bi-check2-square"></i>
+            <div class="step-title">Tasks</div>
+            <div class="step-sub">Assign work to members</div>
+        </a>
+    </div>
+    <div class="col-6 col-md">
+        <a class="workflow-step" href="{{ url_for('kanban') }}">
+            <span class="step-no">4</span>
+            <i class="bi bi-kanban"></i>
+            <div class="step-title">Kanban Board</div>
+            <div class="step-sub">Track progress daily</div>
+        </a>
+    </div>
+    <div class="col-6 col-md">
+        <a class="workflow-step" href="{{ url_for('action_items') }}">
+            <span class="step-no">5</span>
+            <i class="bi bi-calendar-check"></i>
+            <div class="step-title">Weekly Action Items</div>
+            <div class="step-sub">Review and follow up</div>
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="mb-3">Quick Actions</h6>
+        <a href="{{ url_for('add_project') }}" class="btn btn-outline-primary btn-sm me-1 mb-1">+ New Project</a>
+        <a href="{{ url_for('add_story') }}" class="btn btn-outline-primary btn-sm me-1 mb-1">+ New Story</a>
+        <a href="{{ url_for('add_sprint') }}" class="btn btn-outline-primary btn-sm me-1 mb-1">+ New Sprint</a>
+        <a href="{{ url_for('add_task') }}" class="btn btn-outline-primary btn-sm me-1 mb-1">+ New Task</a>
+        <a href="{{ url_for('add_action_item') }}" class="btn btn-outline-primary btn-sm mb-1">+ New Action Item</a>
+    </div>
+</div>
+{% endblock %}

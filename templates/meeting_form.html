@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit Meeting' if meeting else 'New Meeting' }}{% endblock %}
+
+{% block content %}
+<h3>{{ 'Edit Scrum Meeting' if meeting else 'New Scrum Meeting' }}</h3>
+
+{% set current_type = meeting.meeting_type if meeting else default_type %}
+
+<form method="POST" class="mt-3" style="max-width: 700px;">
+    {% if meeting %}
+        <div class="mb-3">
+            <label class="form-label">Sprint</label>
+            <input type="text" class="form-control" value="{{ meeting.sprint_name }}" disabled>
+        </div>
+    {% else %}
+        <div class="mb-3">
+            <label class="form-label">Sprint</label>
+            <select name="sprint_id" class="form-select" required>
+                {% for s in sprints %}
+                    <option value="{{ s.id }}">{{ s.name }} ({{ s.status }}) - {{ s.project_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Meeting Type</label>
+            <select name="meeting_type" id="meeting_type" class="form-select" onchange="updateLabels()">
+                {% for t in meeting_types %}
+                    <option value="{{ t }}" {% if current_type == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Meeting Date</label>
+            <input type="date" name="meeting_date" class="form-control" required
+                   value="{{ meeting.meeting_date if meeting else '' }}">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" id="notes_label">Discussion Notes</label>
+        <textarea name="notes" class="form-control" rows="4" required>{{ meeting.notes if meeting else '' }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" id="follow_up_label">Blockers / Feedback / Action Points</label>
+        <textarea name="follow_up" class="form-control" rows="3">{{ meeting.follow_up if meeting and meeting.follow_up else '' }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save Meeting</button>
+    <a href="{{ url_for('scrum_meetings') }}" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script>
+    var labelTexts = {
+        "Daily Scrum": ["What did we do yesterday and what will we do today?", "Blockers"],
+        "Sprint Review": ["What was demonstrated in this sprint?", "Feedback received"],
+        "Sprint Retrospective": ["What went well?", "What should we improve? (action points)"]
+    };
+
+    function updateLabels() {
+        var type = document.getElementById("meeting_type").value;
+        document.getElementById("notes_label").textContent = labelTexts[type][0];
+        document.getElementById("follow_up_label").textContent = labelTexts[type][1];
+    }
+
+    updateLabels();
+</script>
+{% endblock %}

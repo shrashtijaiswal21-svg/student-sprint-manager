@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit Project' if project else 'New Project' }}{% endblock %}
+
+{% block content %}
+<h3>{{ 'Edit Project' if project else 'New Project' }}</h3>
+
+<form method="POST" class="mt-3" style="max-width: 600px;">
+    <div class="mb-3">
+        <label class="form-label">Project Name</label>
+        <input type="text" name="name" class="form-control" required
+               value="{{ project.name if project else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="3">{{ project.description if project and project.description else '' }}</textarea>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Start Date</label>
+            <input type="date" name="start_date" class="form-control"
+                   value="{{ project.start_date if project and project.start_date else '' }}">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">End Date</label>
+            <input type="date" name="end_date" class="form-control"
+                   value="{{ project.end_date if project and project.end_date else '' }}">
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save Project</button>
+    <a href="{{ url_for('projects') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

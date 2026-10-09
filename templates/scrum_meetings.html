@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Scrum Meetings{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <h3 class="mb-0">Scrum Meetings</h3>
+        <small class="text-muted">Daily Scrum, Sprint Review and Sprint Retrospective notes</small>
+    </div>
+    <div>
+        <a href="{{ url_for('add_meeting', type='Daily Scrum') }}" class="btn btn-primary btn-sm">+ Daily Scrum</a>
+        <a href="{{ url_for('add_meeting', type='Sprint Review') }}" class="btn btn-success btn-sm">+ Sprint Review</a>
+        <a href="{{ url_for('add_meeting', type='Sprint Retrospective') }}" class="btn btn-warning btn-sm">+ Retrospective</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="stat-card stat-blue">
+            <i class="bi bi-chat-dots stat-icon"></i>
+            <h6>Daily Scrums</h6>
+            <div class="stat-value">{{ counts['Daily Scrum'] }}</div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stat-card stat-green">
+            <i class="bi bi-easel stat-icon"></i>
+            <h6>Sprint Reviews</h6>
+            <div class="stat-value">{{ counts['Sprint Review'] }}</div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stat-card stat-orange">
+            <i class="bi bi-arrow-repeat stat-icon"></i>
+            <h6>Retrospectives</h6>
+            <div class="stat-value">{{ counts['Sprint Retrospective'] }}</div>
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-pills mb-3">
+    <li class="nav-item">
+        <a class="nav-link {% if selected_type == 'all' %}active{% endif %}" href="{{ url_for('scrum_meetings') }}">All</a>
+    </li>
+    {% for t in meeting_types %}
+    <li class="nav-item">
+        <a class="nav-link {% if selected_type == t %}active{% endif %}" href="{{ url_for('scrum_meetings', type=t) }}">{{ t }}</a>
+    </li>
+    {% endfor %}
+</ul>
+
+{% if meetings %}
+<table class="table table-bordered table-hover bg-white">
+    <thead class="table-dark">
+        <tr>
+            <th>Date</th>
+            <th>Meeting</th>
+            <th>Sprint</th>
+            <th>Discussion Notes</th>
+            <th>Blockers / Feedback / Action Points</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in meetings %}
+        <tr>
+            <td>{{ m.meeting_date }}</td>
+            <td><span class="badge text-bg-{{ colors[m.meeting_type] }}">{{ m.meeting_type }}</span></td>
+            <td>{{ m.sprint_name }}</td>
+            <td style="white-space: pre-line;">{{ m.notes }}</td>
+            <td style="white-space: pre-line;">{{ m.follow_up or '-' }}</td>
+            <td>
+                <a href="{{ url_for('edit_meeting', meeting_id=m.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <form action="{{ url_for('delete_meeting', meeting_id=m.id) }}" method="POST" class="d-inline"
+                      onsubmit="return confirm('Delete this meeting note?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-secondary">No meetings found. Use the buttons above to add one.</div>
+{% endif %}
+{% endblock %}

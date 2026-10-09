@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Sprints{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Sprints</h3>
+    <a href="{{ url_for('add_sprint') }}" class="btn btn-primary">+ New Sprint</a>
+</div>
+
+{% if sprints %}
+<table class="table table-bordered table-hover bg-white">
+    <thead class="table-dark">
+        <tr>
+            <th>Sprint</th>
+            <th>Project</th>
+            <th>Goal</th>
+            <th>Dates</th>
+            <th>Stories</th>
+            <th>Points</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sprint in sprints %}
+        <tr>
+            <td><strong>{{ sprint.name }}</strong></td>
+            <td>{{ sprint.project_name }}</td>
+            <td>{{ sprint.goal }}</td>
+            <td>{{ sprint.start_date }} to {{ sprint.end_date }}</td>
+            <td>{{ sprint.story_count }}</td>
+            <td>{{ sprint.total_points }}</td>
+            <td>
+                {% if sprint.status == 'Active' %}
+                    <span class="badge text-bg-success">Active</span>
+                {% elif sprint.status == 'Completed' %}
+                    <span class="badge text-bg-secondary">Completed</span>
+                {% else %}
+                    <span class="badge text-bg-info">Planned</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('view_sprint', sprint_id=sprint.id) }}" class="btn btn-sm btn-info">Backlog</a>
+                <a href="{{ url_for('edit_sprint', sprint_id=sprint.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <form action="{{ url_for('delete_sprint', sprint_id=sprint.id) }}" method="POST" class="d-inline"
+                      onsubmit="return confirm('Delete this sprint? Its stories will go back to the Product Backlog.');">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-secondary">No sprints yet. Click "+ New Sprint" to create one.</div>
+{% endif %}
+{% endblock %}

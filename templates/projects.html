@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Projects{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Projects</h3>
+    <a href="{{ url_for('add_project') }}" class="btn btn-primary">+ New Project</a>
+</div>
+
+{% if projects %}
+<table class="table table-bordered table-hover bg-white">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Project Name</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Owner</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for project in projects %}
+        <tr>
+            <td>{{ project.id }}</td>
+            <td>{{ project.name }}</td>
+            <td>{{ project.start_date or '-' }}</td>
+            <td>{{ project.end_date or '-' }}</td>
+            <td>{{ project.owner_name }}</td>
+            <td>
+                <a href="{{ url_for('view_project', project_id=project.id) }}" class="btn btn-sm btn-info">View</a>
+                <a href="{{ url_for('edit_project', project_id=project.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <form action="{{ url_for('delete_project', project_id=project.id) }}" method="POST" class="d-inline"
+                      onsubmit="return confirm('Delete this project and all its data?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-secondary">No projects yet. Click "+ New Project" to create one.</div>
+{% endif %}
+{% endblock %}
